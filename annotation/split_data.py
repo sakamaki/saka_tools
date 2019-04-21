@@ -1,35 +1,39 @@
 import os
 import shutil
 import random
+import argparse
+
+ap = argparse.ArgumentParser()
+ap.add_argument("input_path", help="Dataset path")
+ap.add_argument("image_set_file_path", help="Image set file path")
+ap.add_argument("-od", "--output_train_dir", required=True, help="Output train datasets dir")
+ap.add_argument("-ot", "--output_test_dir", required=True, help="Output test datasets dir")
+ap.add_argument("-tc", "--train_file_count", required=True, help="Train file count")
+args = vars(ap.parse_args())
 
 
-target_file = 'output123.txt'
-input_dir = 'datasets1293'
-output_train_dir = 'train1000/.'
-output_test_dir = 'test293/.'
+input_dir = args.get('input_path')
+image_set_file_path = args.get('image_set_file_path')
+output_train_dir = args.get('output_train_dir')
+output_test_dir = args.get('output_test_dir')
+train_file_count = args.get('train_file_count')
 
 
 def main():
-    with open(os.path.join(target_file), 'r', encoding='utf-8') as f:
+    with open(os.path.join(image_set_file_path), 'r', encoding='utf-8') as f:
         lines = f.readlines()
-        indexs = [i for i in range(0, len(lines))]
-        random.shuffle(indexs)
-        train_list = lines[:1000]
-        test_list = lines[1000:]
-        print(len(train_list))
-        print(len(test_list))
+    index_list = [i for i in range(0, len(lines))]
+    random.shuffle(index_list)
+    train_list = lines[:train_file_count]
+    test_list = lines[train_file_count:]
+    print(len(train_list))
+    print(len(test_list))
+    for output_dir in [output_train_dir, output_test_dir]:
         for basename in train_list:
             for ext_name in ['.jpg', '.xml']:
-                bn = basename.strip('\n')
-                src = f'{input_dir}/{bn}{ext_name}'
-                out = f'{output_train_dir}/{bn}{ext_name}'
-                print(src, out)
-                shutil.copyfile(src, out)
-        for basename in test_list:
-            for ext_name in ['.jpg', '.xml']:
-                bn = basename.strip('\n')
-                src = f'{input_dir}/{bn}{ext_name}'
-                out = f'{output_test_dir}/{bn}{ext_name}'
+                file_name = basename.strip('\n') + ext_name
+                src = os.path.join(input_dir, file_name)
+                out = os.path.join(output_dir, file_name)
                 print(src, out)
                 shutil.copyfile(src, out)
 
