@@ -9,16 +9,19 @@ from glob import glob
 ap = argparse.ArgumentParser()
 ap.add_argument("test_path", help="Test dataset path")
 ap.add_argument("train_path", help="Training dataset path")
+ap.add_argument("-ext", "--extension", required=True,
+                help="File extension", default="jpg")
 args = vars(ap.parse_args())
 
 test_path = args.get('test_path')
 train_path = args.get('train_path')
+ext = args.get('extension')
 train_md5_hash_list = []
 train_md5_filename_list = []
 
 
 def collect_train_md5_list():
-    for train_file_path in glob(f'{train_path}/*.jpg'):
+    for train_file_path in glob(os.path.join(train_path, f'*.{ext}')):
         with open(train_file_path, 'rb') as f:
             train_md5_hash = hashlib.md5(f.read()).hexdigest()
         train_md5_hash_list.append(train_md5_hash)
@@ -28,7 +31,7 @@ def collect_train_md5_list():
 def main():
     collect_train_md5_list()
     find_flg = False
-    for test_file_path in glob(f'{test_path}/*.jpg'):
+    for test_file_path in glob(os.path.join(test_path, f'*.{ext}')):
         with open(test_file_path, 'rb') as f:
             test_md5_hash = hashlib.md5(f.read()).hexdigest()
         if test_md5_hash in train_md5_hash_list:
