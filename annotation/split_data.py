@@ -16,7 +16,7 @@ input_dir = args.get('input_path')
 image_set_file_path = args.get('image_set_file_path')
 output_train_dir = args.get('output_train_dir')
 output_test_dir = args.get('output_test_dir')
-train_file_count = args.get('train_file_count')
+train_file_count = int(args.get('train_file_count'))
 
 
 def main():
@@ -24,12 +24,14 @@ def main():
         lines = f.readlines()
     index_list = [i for i in range(0, len(lines))]
     random.shuffle(index_list)
-    train_list = lines[:train_file_count]
-    test_list = lines[train_file_count:]
+    train_index = index_list[:train_file_count]
+    test_index = index_list[train_file_count:]
+    train_list = [lines[index] for index in train_index]
+    test_list = [lines[index] for index in test_index]
     print(len(train_list))
     print(len(test_list))
-    for output_dir in [output_train_dir, output_test_dir]:
-        for basename in train_list:
+    for output_dir, data_list in zip([output_train_dir, output_test_dir], [train_list, test_list]):
+        for basename in data_list:
             for ext_name in ['.jpg', '.xml']:
                 file_name = basename.strip('\n') + ext_name
                 src = os.path.join(input_dir, file_name)
